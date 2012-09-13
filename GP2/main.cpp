@@ -2,6 +2,7 @@
 #ifdef WIN32
 //if so include the header for windows applications
 #include <Windows.h>
+#include "GameApplication.h"
 #endif
 
 #include "Win32Window.h"
@@ -17,14 +18,25 @@ int WINAPI WinMain(HINSTANCE hInstance,
 int main(int argc, char **argv)
 #endif
 {
-	CWin32Window * pWin=new CWin32Window();
-	pWin->init(TEXT("Andrew Lindsay"),860,640,false);
+	CGameApplication *pApp=new CGameApplication();
 
-	while(pWin->running()){
-		pWin->checkForWindowMessages();
+	if(!pApp->init())
+	{
+		if (pApp)
+		{
+			delete pApp;
+			pApp=NULL;
+			return 1;
+		}
 	}
 
-	delete pWin;
+	pApp->run();
+
+	if (pApp)
+	{
+		delete pApp;
+		pApp=NULL;
+	}
 
 	return 0;
 }
