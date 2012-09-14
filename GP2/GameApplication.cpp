@@ -55,9 +55,9 @@ bool CGameApplication::run()
 
 void CGameApplication::render()
 {
-	//float ClearColor[4] = {0.0f, 0.125f, 0.3f, 1.0f };
-	//m_pD3D10Device->ClearRenderTargetView(m_pRenderTargetView, ClearColor);
-	//m_pSwapChain->Present (0,0);
+	float ClearColor[4] = {0.0f, 0.125f, 0.3f, 1.0f };
+	m_pD3D10Device->ClearRenderTargetView(m_pRenderTargetView, ClearColor);
+	m_pSwapChain->Present (0,0);
 }
 
 void CGameApplication::update()
@@ -122,16 +122,14 @@ bool CGameApplication::initGraphics()
 	vp.TopLeftX = 0;
 	vp.TopLeftY = 0;
 	m_pD3D10Device->RSSetViewports (1, &vp );
-
-
-
+	
 	return true;
 }
 
 bool CGameApplication::initWindow()
 {
 	m_pWindow=new CWin32Window();
-	if(!m_pWindow->init(TEXT("Lab 1 - Create Device"),800,640,false))
+	if(!m_pWindow->init(TEXT("Lab 1 Drawing a triangle"),800,640,false))
 		return false;
 
 	return true;
