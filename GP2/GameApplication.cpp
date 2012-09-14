@@ -55,6 +55,9 @@ bool CGameApplication::run()
 
 void CGameApplication::render()
 {
+	//float ClearColor[4] = {0.0f, 0.125f, 0.3f, 1.0f };
+	//m_pD3D10Device->ClearRenderTargetView(m_pRenderTargetView, ClearColor);
+	//m_pSwapChain->Present (0,0);
 }
 
 void CGameApplication::update()
@@ -85,6 +88,42 @@ bool CGameApplication::initGraphics()
 	sd.OutputWindow = m_pWindow->getHandleToWindow();
 	sd.Windowed = (BOOL)(!m_pWindow->isFullScreen());
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+
+	sd.SampleDesc.Count =1;
+	sd.SampleDesc.Quality = 0;
+
+	sd.BufferDesc.Width = width;
+	sd.BufferDesc.Height = height;
+	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	sd.BufferDesc.RefreshRate.Numerator= 60;
+	sd.BufferDesc.RefreshRate.Denominator= 1;
+
+	if (FAILED(D3D10CreateDeviceAndSwapChain(NULL,D3D10_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags, D3D10_SDK_VERSION, &sd, &m_pSwapChain, &m_pD3D10Device)))
+		return false;
+
+	ID3D10Texture2D *pBackBuffer;
+	if ( FAILED (m_pSwapChain->GetBuffer(0,_uuidof(ID3D10Texture2D),(void**)&pBackBuffer)))
+		return false;
+
+	if (FAILED(m_pD3D10Device->CreateRenderTargetView ( pBackBuffer,NULL, &m_pRenderTargetView)))
+	{
+		pBackBuffer->Release();
+		return false;
+	}
+	pBackBuffer->Release();
+
+	m_pD3D10Device->OMGetRenderTargets(1, &m_pRenderTargetView, NULL);
+
+	D3D10_VIEWPORT vp;
+	vp.Width = width;
+	vp.Height = height;
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	vp.TopLeftX = 0;
+	vp.TopLeftY = 0;
+	m_pD3D10Device->RSSetViewports (1, &vp );
+
+
 
 	return true;
 }
