@@ -1,5 +1,10 @@
 #include "GameApplication.h"
 
+struct Vertex
+{
+	D3DXVECTOR3 Pos;
+}
+
 CGameApplication::CGameApplication(void)
 {
 	m_pWindow-NULL;
@@ -38,6 +43,9 @@ bool CGameApplication::init()
 	if(!initGraphics())
 		return false;
 
+	if(!initGame())
+		return false;
+
 	return true;
 }
 
@@ -57,14 +65,22 @@ bool CGameApplication::run()
 
 void CGameApplication::render()
 {
+	// sets up a float array of colors (Red, Green, Blue and alpha) which has values from 0 to 1 for each component
 	float ClearColor[4] = {0.0f, 0.125f, 0.3f, 1.0f };
+	// uses the above color value and will clear the render target to that color
 	m_pD3D10Device->ClearRenderTargetView(m_pRenderTargetView, ClearColor);
+	//flip the swap chain.
 	m_pSwapChain->Present (0,0);
 }
 
 void CGameApplication::update()
 {
 	//This function is used to update the game state, AI, input devices and physics
+}
+
+bool CGameApplication::initGame()
+{
+	return true;
 }
 
 bool CGameApplication::initGraphics()
@@ -149,7 +165,8 @@ bool CGameApplication::initGraphics()
 	/* Creating a Render Target view, This view is the wayt to bind certain resources to the pipeline for rendering.
 	   To CreateRenderTargetView we take in parameters as soo ; 
 	   ID3D10Resource* - a pointer to a resource, a Texture2D interface inherits for this Resource interface so it can be passed as a paramater to this function
-	*/
+	   D3D10_RENDER_TARGET_VIEW_DESC* - A pointer to a structure which defines options for accessing parts of the render target such as sub areas of the resource
+	   ID3D10RenderTargetView** - A pointer to an address of a render target view. After this call we should have a valid render target view*/
 	if (FAILED(m_pD3D10Device->CreateRenderTargetView ( pBackBuffer,NULL, &m_pRenderTargetView)))
 	{
 		pBackBuffer->Release();
@@ -157,8 +174,14 @@ bool CGameApplication::initGraphics()
 	}
 	pBackBuffer->Release();
 
+	/*Binds an array of Render Targets to the Output Merger stage of the pipeline.
+	  UINT - This values specifies the amount of render targets to bind to the pipeline
+	  ID3D10RenderTargetView* - A pointer to an array of render targets
+	  ID3D10DepthStencilView* - A pointer to a depth stencil this holds depth information of the scene.
+	*/
 	m_pD3D10Device->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
 
+	// Sets up a D3D10_VIEWPORT instance this is the same width as the window
 	D3D10_VIEWPORT vp;
 	vp.Width = width;
 	vp.Height = height;
@@ -166,6 +189,7 @@ bool CGameApplication::initGraphics()
 	vp.MaxDepth = 1.0f;
 	vp.TopLeftX = 0;
 	vp.TopLeftY = 0;
+	// calling the RSSetViewports function to set the view port which is bound to the pipeline
 	m_pD3D10Device->RSSetViewports (1, &vp );
 	
 	return true;
