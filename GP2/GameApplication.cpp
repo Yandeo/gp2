@@ -80,6 +80,17 @@ void CGameApplication::update()
 
 bool CGameApplication::initGame()
 {
+	D3D10_BUFFER_DESC bd;
+	// Describes how the buffer is written and read to and from. Default states that the resource will be written to and read by the GPU
+	bd.Usage = D3D10_USAGE_DEFAULT;
+	// The size of the buffer (3 Vertices)
+	bd.ByteWidth = sizeof( Vertex ) * 3;
+	//The type of buffer we are creating, this case - a combination of bind flags . and saying vertex buffer states that its a vertex buffer
+	bd.BindFlags = D3D10_BIND_VERTEX_BUFFER;
+	// This specifies wither the CPU can access the buffer. 0 means no
+	bd.CPUAccessFlags = 0;
+	// This is to ask for any additional options, 0 means there are no additional options
+	bd.MiscFlags = 0;
 	return true;
 }
 
