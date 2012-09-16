@@ -112,7 +112,7 @@ bool CGameApplication::initGraphics()
 	}
 	pBackBuffer->Release();
 
-	m_pD3D10Device->OMGetRenderTargets(1, &m_pRenderTargetView, NULL);
+	m_pD3D10Device->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
 
 	D3D10_VIEWPORT vp;
 	vp.Width = width;
