@@ -18,10 +18,14 @@ int WINAPI WinMain(HINSTANCE hInstance,
 int main(int argc, char **argv)
 #endif
 {
+	// this is the entry point to the Game Application class.
+	// allocating a pointer to the game application class
 	CGameApplication *pApp=new CGameApplication();
 
+	//Checking to see if it can be initialized
 	if(!pApp->init())
 	{
+		//if it cant be we delete the pointer 
 		if (pApp)
 		{
 			delete pApp;
@@ -29,7 +33,7 @@ int main(int argc, char **argv)
 			return 1;
 		}
 	}
-
+	// if it can be we call the run function whiche acts like our game loop
 	pApp->run();
 
 	if (pApp)

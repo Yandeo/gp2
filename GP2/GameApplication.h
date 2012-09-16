@@ -7,7 +7,9 @@
 class CGameApplication
 {
 public:
+	//This is the Game Application calss constructor, It will create an instance of the class
 	CGameApplication(void);
+	//This deconstructor we deallocate all the resources, the D3D10 objects we call the release function and we also delete the window
 	~CGameApplication(void);
 
 	bool init();
