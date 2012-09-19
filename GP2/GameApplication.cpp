@@ -21,6 +21,9 @@ CGameApplication::~CGameApplication(void)
 	if (m_pVertexBuffer)
 		m_pVertexBuffer->Release();
 
+	if (m_pVertexLayout)
+		m_pVertexLayout->Release();
+
 	if (m_pEffect)
 		m_pEffect->Release();
 
@@ -75,6 +78,15 @@ void CGameApplication::render()
 	float ClearColor[4] = {0.0f, 0.125f, 0.3f, 1.0f };
 	// uses the above color value and will clear the render target to that color
 	m_pD3D10Device->ClearRenderTargetView(m_pRenderTargetView, ClearColor);
+
+	D3D10_TECHNIQUE_DESC techDesc;
+	m_pTechnique->GetDesc( &techDesc );
+	for ( UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		m_pTechnique->GetPassByIndex(p)->Apply(0);
+		m_pD3D10Device->Draw(3,0);
+	}
+
 	//flip the swap chain.
 	m_pSwapChain->Present (0,0);
 }
@@ -110,7 +122,7 @@ bool CGameApplication::initGame()
 	D3D10_SUBRESOURCE_DATA InitData;
 	InitData.pSysMem = vertices;
 
-	DWORD dwShaderFlags = D3D10_SHADER_ENAbLE_STRICTNESS;
+	DWORD dwShaderFlags = D3D10_SHADER_ENABLE_STRICTNESS;
 
 #if defined(DEBUG) || defined (_DEBUG)
 	dwShaderFlags |= D3D10_SHADER_DEBUG;
@@ -140,6 +152,53 @@ bool CGameApplication::initGame()
 	if (FAILED(m_pD3D10Device->CreateBuffer( &bd, &InitData, &m_pVertexBuffer)))
 		return false;
 
+	/* Array of these input parameters as we can have many different elements of a vertex
+	   1st parameter LPCSTR - a string which specifies the semantic that this element is bount to. this allows it to link up vertices from the buffer to the vertices passed into the vertex shader
+	   2nd parameter UINT - Index of the semantic, again this is used to bind a vertex in the pipeline
+	   3rd parameter DXGI_FORMAT - the format of that data, in this case 3 components with 32 bits per componont which are all floating point numbers
+	   5th parameter UINT - the starting offset of the element, this will increase for the subsequent elements in the array.
+	*/
+	D3D10_INPUT_ELEMENT_DESC layout[]=
+	{
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D10_INPUT_PER_VERTEX_DATA,0},
+	};
+
+	// calculating the size of the input array
+	UINT numElements = sizeof ( layout ) / sizeof(D3D10_INPUT_ELEMENT_DESC);
+	// retrieving the pass description
+	D3D10_PASS_DESC PassDesc;
+	//using this to bind the layout
+	m_pTechnique->GetPassByIndex(0)->GetDesc(&PassDesc);
+
+	/* The call to createinputlayout will create the input layout using the follow parameters 
+		 1st parameter D3D10_INPUT_ELEMENT_DESC* - an array of input element descriptions
+		 2nd parameter UINT - The number of elements in the input elements array
+		 3rd parameter const void* - a pointer to the complied shader code, this retrieced from the pass using the input signature variable of the Pass Description
+		 4th parameter SIZE_T - the size of the above shader cod, this is retrieved for the pass description
+		 5th parameter ID3D10InputerLayout** - a pointer to a memory address of the input layout object
+	*/
+	if(FAILED(m_pD3D10Device->CreateInputLayout( layout, numElements, PassDesc.pIAInputSignature, PassDesc.IAInputSignatureSize, &m_pVertexLayout)))
+	{
+		return false;
+	}
+
+	// telling the input assembler about the layout
+	m_pD3D10Device->IASetInputLayout( m_pVertexLayout );
+	//holding the size of one vertex
+	UINT stride = sizeof( Vertex );
+	// where the vertices will start in the buffer
+	UINT offset = 0;
+
+	/* The IASetVertexBuffer will bind one of many buffers to the input assembler to use, it needs the following parameters;
+			UINT - The input slow to bind, 0 indicates the first slow. We can bind a buffer to different slots so we can change buffer as we render
+			UINT - The number of buffers we are binding
+			ID3D10Buffer** - a pointer to a memory address of buffer
+			UINT* - an array of strides for the buffer
+			UINT* - an array of offsets for the buffer
+	*/
+	m_pD3D10Device->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
+
+	m_pD3D10Device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	return true;
 }
 
