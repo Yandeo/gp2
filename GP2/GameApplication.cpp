@@ -10,13 +10,19 @@ CGameApplication::CGameApplication(void)
 	m_pD3D10Device=NULL;
 	m_pRenderTargetView=NULL;
 	m_pSwapChain=NULL;
-	m_pVertextBuffer=NULL;
+	m_pVertexBuffer=NULL;
 }
 
 CGameApplication::~CGameApplication(void)
 {
 	if (m_pD3D10Device)
 		m_pD3D10Device->ClearState();
+
+	if (m_pVertexBuffer)
+		m_pVertexBuffer->Release();
+
+	if (m_pEffect)
+		m_pEffect->Release();
 
 	if (m_pRenderTargetView)
 		m_pRenderTargetView->Release();
@@ -91,6 +97,49 @@ bool CGameApplication::initGame()
 	bd.CPUAccessFlags = 0;
 	// This is to ask for any additional options, 0 means there are no additional options
 	bd.MiscFlags = 0;
+
+	// Defining 3 simple vertices 
+	Vertex vertices[] =
+	{
+		D3DXVECTOR3(0.0f, 0.5f, 0.5f),
+		D3DXVECTOR3(0.5f,-0.5f, 0.5f),
+		D3DXVECTOR3(-0.5f,-0.5f, 0.5f),
+	};
+
+	// setting the pSysMem of the SUBRESOURCE_DATA to the vertices
+	D3D10_SUBRESOURCE_DATA InitData;
+	InitData.pSysMem = vertices;
+
+	DWORD dwShaderFlags = D3D10_SHADER_ENAbLE_STRICTNESS;
+
+#if defined(DEBUG) || defined (_DEBUG)
+	dwShaderFlags |= D3D10_SHADER_DEBUG;
+#endif
+
+	/* This large function call with 12 paramaters but we only get a few definitions 
+	   the 1st paramater LPCSTR - the filename of the effect file
+	   the 4th paramater LPCSTR - The shader profile we are using
+	   the 5th paramater DWORD - the shader flags this allows it to collect debug info about the shader for example
+	   the 7th paramater ID3D10Device* - A pointer to a valid device which will use this effect
+	   the 10th paramater ID3D10Effect** - a pointer to a memory address of an effect object
+	*/
+	if(FAILED(D3DX10CreateEffectFromFile(TEXT("ScreenSpace.fx"),NULL,NULL,"fx_4_0",dwShaderFlags,0,m_pD3D10Device,NULL,NULL, &m_pEffect,NULL,NULL)))
+	{
+		MessageBox (NULL,TEXT("The FX file cannot be located, please run executable from the directory that contains the FX file."),TEXT("Error"), MB_OK);
+		return false;
+	}
+
+	//We search the m_pEffect for the technique by the string name render
+	m_pTechnique=m_pEffect->GetTechniqueByName("Render");
+
+	//Creating the buffer how ever it takes in the following paramaters 
+	/* D3D10_BUFFER_DESC* - A pointer to a buffer description
+	   D3D10_SUBRESOURCE_DATA* - A pointer to the resource data
+	   ID3D10Buffer** - Memory address of a pointer to a buffer
+	*/
+	if (FAILED(m_pD3D10Device->CreateBuffer( &bd, &InitData, &m_pVertexBuffer)))
+		return false;
+
 	return true;
 }
 
