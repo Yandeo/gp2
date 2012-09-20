@@ -135,9 +135,10 @@ bool CGameApplication::initGame()
 	   the 7th paramater ID3D10Device* - A pointer to a valid device which will use this effect
 	   the 10th paramater ID3D10Effect** - a pointer to a memory address of an effect object
 	*/
-	if(FAILED(D3DX10CreateEffectFromFile(TEXT("ScreenSpace.fx"),NULL,NULL,"fx_4_0",dwShaderFlags,0,m_pD3D10Device,NULL,NULL, &m_pEffect,NULL,NULL)))
+	ID3D10Blob *pErrors = NULL;
+	if(FAILED(D3DX10CreateEffectFromFile(TEXT("ScreenSpace.fx"),NULL,NULL,"fx_4_0",dwShaderFlags,0,m_pD3D10Device,NULL,NULL, &m_pEffect,&pErrors,NULL)))
 	{
-		MessageBox (NULL,TEXT("The FX file cannot be located, please run executable from the directory that contains the FX file."),TEXT("Error"), MB_OK);
+		MessageBoxA (NULL,(char*)pErrors->GetBufferPointer(),"Error", MB_OK);
 		return false;
 	}
 
@@ -198,6 +199,7 @@ bool CGameApplication::initGame()
 	*/
 	m_pD3D10Device->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
 
+	//Setting the primitive to be a triangle
 	m_pD3D10Device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	return true;
 }

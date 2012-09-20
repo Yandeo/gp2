@@ -10,7 +10,7 @@ float4 PS ( float4 Pos : SV_POSITION) : SV_TARGET
 
 technique10 Render
 {
-	passP0
+	pass P0
 	{
 		SetVertexShader( CompileShader( vs_4_0, VS()));
 		SetGeometryShader(NULL);
