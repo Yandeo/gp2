@@ -5,9 +5,6 @@ struct Vertex
     D3DXVECTOR3 Pos;
 };
 
-
-
-
 CGameApplication::CGameApplication(void)
 {
 	m_pWindow=NULL;
@@ -218,9 +215,9 @@ void CGameApplication::update()
 {
 }
 
-//initGraphics - initialise the graphics subsystem - BMD
 bool CGameApplication::initGraphics()
 {
+	//initGraphics - initialise the graphics subsystem - BMD
 	//Retrieve the size of the window, this is need to match the
 	//back buffer to screen size - BMD
 	RECT windowRect;
