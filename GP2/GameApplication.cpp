@@ -11,6 +11,8 @@ CGameApplication::CGameApplication(void)
 	m_pRenderTargetView=NULL;
 	m_pSwapChain=NULL;
 	m_pVertexBuffer=NULL;
+	m_pDepthStencilTexture=NULL;
+	m_pDepthStencilView=NULL;
 }
 
 CGameApplication::~CGameApplication(void)
@@ -29,6 +31,12 @@ CGameApplication::~CGameApplication(void)
 
 	if (m_pRenderTargetView)
 		m_pRenderTargetView->Release();
+
+	if(m_pDepthStencilTexture)
+		m_pDepthStencilTexture->Release();
+
+	if(m_pDepthStencilView)
+		m_pDepthStencilView->Release();
 
 	if(m_pSwapChain)
 		m_pSwapChain->Release();
@@ -78,6 +86,13 @@ void CGameApplication::render()
 	float ClearColor[4] = {0.0f, 0.125f, 0.3f, 1.0f };
 	// uses the above color value and will clear the render target to that color
 	m_pD3D10Device->ClearRenderTargetView(m_pRenderTargetView, ClearColor);
+	/*Clearing the depth stencil view using the varaibles as so
+	  1st parameter ID3D10StencilDepthView* - A pointer to a depth stencil view
+	  2nd parameter UINT - Clear flags, in this case just clearing the depth buffer
+	  3rd parameter FLOAT - the value to clear the depth buffer with 
+	  4th parameter UINT8 - the calue to clear the stencil buffer with
+	*/
+	m_pD3D10Device->ClearDepthStencilView(m_pDepthStencilView, D3D10_CLEAR_DEPTH, 1.0f,0);
 
 	D3D10_TECHNIQUE_DESC techDesc;
 	m_pTechnique->GetDesc( &techDesc );
@@ -293,14 +308,49 @@ bool CGameApplication::initGraphics()
 		pBackBuffer->Release();
 		return false;
 	}
+
+	//Releasing the memory locations that the back buffer has 
 	pBackBuffer->Release();
+
+	//this line is creating the texture (2d)
+	if (FAILED(m_pD3D10Device->CreateTexture2D(&descDepth,NULL,&m_pDepthStencilTexture)))
+	{
+		return false;
+	}
+
+	//Describing the Stencil view called DescDSV
+	D3D10_DEPTH_STENCIL_VIEW_DESC descDSV;
+	descDSV.Format = descDepth.Format;
+	descDSV.ViewDimension = D3D10_DSV_DIMENSION_TEXTURED;
+	descDSV.Texture2D.MipSlice = 0;
+	//Creating the Depth Stencil View
+	if (FAILED(m_pD3D10Device->CreateDepthStencilView(m_pDepthStencilTexture, &descDSV, &m_pDepthStencilView)))
+	{
+		return false
+	}
+	// Define the descDepth with all the below values
+	// the important varaibles are as so ;
+	// Format - this is the format of the texture in this case its a texture that will be holding a 32 bit floating point
+	// Bind Flags - This specifies how this texture will be bound to the pipeline, this will always be this value
+	D3D10_TEXTURE2D_DESC descDepth;
+	descDepth.Width = width;
+	descDepth.Height = height;
+	descDepth.MipLevels = 1;
+	descDepth.ArraySize = 1;
+	descDepth.Format = DXGI_FORMAT_D32_FLOAT;
+	descDepth.SampleDesc.Count = 1;
+	descDepth.SampleDesc.Quality = 0;
+	descDepth.Usage = D3D10_USAGE_DEFAULT;
+	descDepth.BindFlags = D3D10_BIND_DEPTH_STENCIL;
+	descDepth.CPUAccessFlags = 0;
+	descDepth.MiscFlags = 0;
 
 	/*Binds an array of Render Targets to the Output Merger stage of the pipeline.
 	  UINT - This values specifies the amount of render targets to bind to the pipeline
 	  ID3D10RenderTargetView* - A pointer to an array of render targets
 	  ID3D10DepthStencilView* - A pointer to a depth stencil this holds depth information of the scene.
 	*/
-	m_pD3D10Device->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
+	m_pD3D10Device->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
 
 	// Sets up a D3D10_VIEWPORT instance this is the same width as the window
 	D3D10_VIEWPORT vp;
