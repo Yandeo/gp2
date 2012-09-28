@@ -79,6 +79,8 @@ void CGameApplication::render()
 	// uses the above color value and will clear the render target to that color
 	m_pD3D10Device->ClearRenderTargetView(m_pRenderTargetView, ClearColor);
 
+	/*
+	*/
 	D3D10_TECHNIQUE_DESC techDesc;
 	m_pTechnique->GetDesc( &techDesc );
 	for ( UINT p = 0; p < techDesc.Passes; ++p)
