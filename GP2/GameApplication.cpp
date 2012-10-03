@@ -140,20 +140,20 @@ bool CGameApplication::initGame()
 	// This is to ask for any additional options, 0 means there are no additional options
 	bd.MiscFlags = 0;
 
-	D3D10_BUFFER_DESC indexBufferDesc;
-	// Describes how the buffer is written and read to and from. Default states that the resource will be written to and read by the GPU
-	bd.Usage = D3D10_USAGE_DEFAULT;
-	// The size of the buffer (3 Vertices)
-	bd.ByteWidth = sizeof( Vertex ) * 3;
-	//The type of buffer we are creating, this case - a combination of bind flags . and saying index buffer states that its a index buffer
-	bd.BindFlags = D3D10_BIND_INDEX_BUFFER;
-	// This specifies wither the CPU can access the buffer. 0 means no
-	bd.CPUAccessFlags = 0;
-	// This is to ask for any additional options, 0 means there are no additional options
-	bd.MiscFlags = 0;
-
 	//creating the indices for the index buffer
 	int indices []={0,1,2};
+
+	D3D10_BUFFER_DESC indexBufferDesc;
+	// Describes how the buffer is written and read to and from. Default states that the resource will be written to and read by the GPU
+	indexBufferDesc.Usage = D3D10_USAGE_DEFAULT;
+	// The size of the buffer (3 Vertices)
+	indexBufferDesc.ByteWidth = sizeof( indices ) * 3;
+	//The type of buffer we are creating, this case - a combination of bind flags . and saying index buffer states that its a index buffer
+	indexBufferDesc.BindFlags = D3D10_BIND_INDEX_BUFFER;
+	// This specifies wither the CPU can access the buffer. 0 means no
+	indexBufferDesc.CPUAccessFlags = 0;
+	// This is to ask for any additional options, 0 means there are no additional options
+	indexBufferDesc.MiscFlags = 0;
 
 	// setting the pSysMem of the SUBRESOURCE_DATA to the indices
 	D3D10_SUBRESOURCE_DATA IndexBufferInitialData;
@@ -200,7 +200,7 @@ bool CGameApplication::initGame()
 	   the 10th paramater ID3D10Effect** - a pointer to a memory address of an effect object
 	*/
 	ID3D10Blob *pErrors = NULL;
-	if(FAILED(D3DX10CreateEffectFromFile(TEXT("ScreenSpace.fx"),NULL,NULL,"fx_4_0",dwShaderFlags,0,m_pD3D10Device,NULL,NULL, &m_pEffect,&pErrors,NULL)))
+	if(FAILED(D3DX10CreateEffectFromFile(TEXT("effect.fx"),NULL,NULL,"fx_4_0",dwShaderFlags,0,m_pD3D10Device,NULL,NULL, &m_pEffect,&pErrors,NULL)))
 	{
 		MessageBoxA (NULL,(char*)pErrors->GetBufferPointer(),"Error", MB_OK);
 		return false;
