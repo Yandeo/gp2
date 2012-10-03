@@ -107,7 +107,7 @@ void CGameApplication::render()
 	for ( UINT p = 0; p < techDesc.Passes; ++p)
 	{
 		m_pTechnique->GetPassByIndex(p)->Apply(0);
-		m_pD3D10Device->DrawIndexed(3,0,0);
+		m_pD3D10Device->DrawIndexed(6,0,0);
 	}
 
 	//flip the swap chain.
@@ -132,7 +132,7 @@ bool CGameApplication::initGame()
 	// Describes how the buffer is written and read to and from. Default states that the resource will be written to and read by the GPU
 	bd.Usage = D3D10_USAGE_DEFAULT;
 	// The size of the buffer (3 Vertices)
-	bd.ByteWidth = sizeof( Vertex ) * 3;
+	bd.ByteWidth = sizeof( Vertex ) * 4;
 	//The type of buffer we are creating, this case - a combination of bind flags . and saying vertex buffer states that its a vertex buffer
 	bd.BindFlags = D3D10_BIND_VERTEX_BUFFER;
 	// This specifies wither the CPU can access the buffer. 0 means no
@@ -141,13 +141,13 @@ bool CGameApplication::initGame()
 	bd.MiscFlags = 0;
 
 	//creating the indices for the index buffer
-	int indices []={0,1,2};
+	int indices []={0,1,2, 0,3,1};
 
 	D3D10_BUFFER_DESC indexBufferDesc;
 	// Describes how the buffer is written and read to and from. Default states that the resource will be written to and read by the GPU
 	indexBufferDesc.Usage = D3D10_USAGE_DEFAULT;
 	// The size of the buffer (3 Vertices)
-	indexBufferDesc.ByteWidth = sizeof( indices ) * 3;
+	indexBufferDesc.ByteWidth = sizeof( indices ) * 6;
 	//The type of buffer we are creating, this case - a combination of bind flags . and saying index buffer states that its a index buffer
 	indexBufferDesc.BindFlags = D3D10_BIND_INDEX_BUFFER;
 	// This specifies wither the CPU can access the buffer. 0 means no
@@ -177,9 +177,10 @@ bool CGameApplication::initGame()
 	// Defining 3 simple vertices 
 	Vertex vertices[] =
 	{
-		D3DXVECTOR3(0.0f, 0.5f, 0.5f),
-		D3DXVECTOR3(0.5f,-0.5f, 0.5f),
-		D3DXVECTOR3(-0.5f,-0.5f, 0.5f),
+		D3DXVECTOR3(0.0f, 0.5f, 0.0f),
+		D3DXVECTOR3(0.5f, 0.0f, 0.0f),
+		D3DXVECTOR3(0.0f, 0.0f, 0.0f),
+		D3DXVECTOR3(0.5f, 0.5f, 0.0f)
 	};
 
 	// setting the pSysMem of the SUBRESOURCE_DATA to the vertices
