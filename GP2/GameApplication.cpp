@@ -6,7 +6,7 @@ struct Vertex
 };
 CGameApplication::CGameApplication(void)
 {
-	m_pWindow-NULL;
+	m_pWindow=NULL;
 	m_pD3D10Device=NULL;
 	m_pRenderTargetView=NULL;
 	m_pSwapChain=NULL;
@@ -94,6 +94,10 @@ void CGameApplication::render()
 	*/
 	m_pD3D10Device->ClearDepthStencilView(m_pDepthStencilView, D3D10_CLEAR_DEPTH, 1.0f,0);
 
+	m_pViewMatrixVariable->SetMatrix((float*)m_matView);
+
+	m_pWorldMatrixVariable->SetMatrix((float*)m_matWorld);
+
 	D3D10_TECHNIQUE_DESC techDesc;
 	m_pTechnique->GetDesc( &techDesc );
 	for ( UINT p = 0; p < techDesc.Passes; ++p)
@@ -109,6 +113,13 @@ void CGameApplication::render()
 void CGameApplication::update()
 {
 	//This function is used to update the game state, AI, input devices and physics
+
+	D3DXMatrixScaling(&m_matScale,m_vecScale.x,m_vecScale.y,m_vecScale.z);
+	D3DXMatrixRotationYawPitchRoll(&m_matRotation, m_vecRotation.y,m_vecRotation.x,m_vecRotation.z);
+	D3DXMatrixTranslation(&m_matTranslation,m_vecPosition.x,m_vecPosition.y,m_vecPosition.z);
+
+	D3DXMatrixMultiply(&m_matWorld, &m_matScale, &m_matRotation);
+	D3DXMatrixMultiply(&m_matWorld, &m_matWorld, &m_matTranslation);
 }
 
 bool CGameApplication::initGame()
@@ -216,6 +227,42 @@ bool CGameApplication::initGame()
 
 	//Setting the primitive to be a triangle
 	m_pD3D10Device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//Setting up the camera to be positioned at -10 on the z axis looking at -1 on the z axis and with an up of 1 on the y axis.
+	D3DXVECTOR3 cameraPos(0.0f,0.0f,-10.0f);
+	D3DXVECTOR3 cameraLook(0.0f,0.0f,1.0f);
+	D3DXVECTOR3 cameraUp(0.0f,1.0f,0.0f);
+	//Calling the functuin which will calculate the view matrix (essentially creating the view matrix)
+	D3DXMatrixLookAtLH(&m_matView, &cameraPos, &cameraLook, &cameraUp);
+
+	//Grabbing the first view port with the dimensionos of our screen and uses it to create the projection matrix.
+	D3D10_VIEWPORT vp;
+	UINT numViewPorts=1;
+	m_pD3D10Device->RSGetViewports(&numViewPorts, &vp);
+	// Creating the projection matrix using the call function
+	/* it takes in the following parameters :
+	   1st parameter (D3DXMATRIX*) - a pointer to a matrix
+	   2nd parameter (float) - the field of view, a 1/4 PI is often a good initail value
+	   3rd parameter (float) - the ratio of the window width and hieght
+	   4th parameter (float) - the near clip plane
+	   5th parameter (float) - the far clip plane
+	*/
+	D3DXMatrixPerspectiveFovLH(&m_matProjection, (float)D3DX_PI * 0.25f, vp.Width/ (FLOAT)vp.Height,0.1f,100.0f);
+
+	// setting the 2 variables of the matrixs
+	m_pViewMatrixVariable = m_pEffect->GetVariableByName("matView")->AsMatrix();
+	m_pProjectionMatrixVariable = m_pEffect->GetVariableByName("matProjection")->AsMatrix();
+
+	// Setting the matrix
+	m_pProjectionMatrixVariable->SetMatrix((float*)m_matProjection);
+
+	// the first three lines set the position, scale and rotation vectors for the object, the last line retrieves the world matrix and will be used to send the the effect
+	m_vecPosition=D3DXVECTOR3(0.0f,0.0f,0.0f);
+	m_vecScale=D3DXVECTOR3(1.0f,1.0f,1.0f);
+	m_vecRotation=D3DXVECTOR3(0.0f, 0.0f,0.0f);
+	m_pWorldMatrixVariable=m_pEffect->GetVariableByName("matWorld")->AsMatrix();
+
+
 	return true;
 }
 
@@ -312,22 +359,6 @@ bool CGameApplication::initGraphics()
 	//Releasing the memory locations that the back buffer has 
 	pBackBuffer->Release();
 
-	//this line is creating the texture (2d)
-	if (FAILED(m_pD3D10Device->CreateTexture2D(&descDepth,NULL,&m_pDepthStencilTexture)))
-	{
-		return false;
-	}
-
-	//Describing the Stencil view called DescDSV
-	D3D10_DEPTH_STENCIL_VIEW_DESC descDSV;
-	descDSV.Format = descDepth.Format;
-	descDSV.ViewDimension = D3D10_DSV_DIMENSION_TEXTURED;
-	descDSV.Texture2D.MipSlice = 0;
-	//Creating the Depth Stencil View
-	if (FAILED(m_pD3D10Device->CreateDepthStencilView(m_pDepthStencilTexture, &descDSV, &m_pDepthStencilView)))
-	{
-		return false
-	}
 	// Define the descDepth with all the below values
 	// the important varaibles are as so ;
 	// Format - this is the format of the texture in this case its a texture that will be holding a 32 bit floating point
@@ -345,6 +376,23 @@ bool CGameApplication::initGraphics()
 	descDepth.CPUAccessFlags = 0;
 	descDepth.MiscFlags = 0;
 
+	//this line is creating the texture (2d)
+	if (FAILED(m_pD3D10Device->CreateTexture2D(&descDepth,NULL,&m_pDepthStencilTexture)))
+	{
+		return false;
+	}
+
+	//Describing the Stencil view called DescDSV
+	D3D10_DEPTH_STENCIL_VIEW_DESC descDSV;
+	descDSV.Format = descDepth.Format;
+	descDSV.ViewDimension = D3D10_DSV_DIMENSION_TEXTURE2D;
+	descDSV.Texture2D.MipSlice = 0;
+
+	//Creating the Depth Stencil View
+	if (FAILED(m_pD3D10Device->CreateDepthStencilView(m_pDepthStencilTexture, &descDSV, &m_pDepthStencilView)))
+	{
+		return false;
+	}
 	/*Binds an array of Render Targets to the Output Merger stage of the pipeline.
 	  UINT - This values specifies the amount of render targets to bind to the pipeline
 	  ID3D10RenderTargetView* - A pointer to an array of render targets
