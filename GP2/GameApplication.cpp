@@ -11,6 +11,7 @@ CGameApplication::CGameApplication(void)
 	m_pRenderTargetView=NULL;
 	m_pSwapChain=NULL;
 	m_pVertexBuffer=NULL;
+	m_pIndexBuffer=NULL;
 	m_pDepthStencilTexture=NULL;
 	m_pDepthStencilView=NULL;
 }
@@ -22,6 +23,9 @@ CGameApplication::~CGameApplication(void)
 
 	if (m_pVertexBuffer)
 		m_pVertexBuffer->Release();
+
+	if (m_pIndexBuffer)
+		m_pIndexBuffer->Release();
 
 	if (m_pVertexLayout)
 		m_pVertexLayout->Release();
@@ -103,7 +107,7 @@ void CGameApplication::render()
 	for ( UINT p = 0; p < techDesc.Passes; ++p)
 	{
 		m_pTechnique->GetPassByIndex(p)->Apply(0);
-		m_pD3D10Device->Draw(3,0);
+		m_pD3D10Device->DrawIndexed(3,0,0);
 	}
 
 	//flip the swap chain.
@@ -135,6 +139,40 @@ bool CGameApplication::initGame()
 	bd.CPUAccessFlags = 0;
 	// This is to ask for any additional options, 0 means there are no additional options
 	bd.MiscFlags = 0;
+
+	D3D10_BUFFER_DESC indexBufferDesc;
+	// Describes how the buffer is written and read to and from. Default states that the resource will be written to and read by the GPU
+	bd.Usage = D3D10_USAGE_DEFAULT;
+	// The size of the buffer (3 Vertices)
+	bd.ByteWidth = sizeof( Vertex ) * 3;
+	//The type of buffer we are creating, this case - a combination of bind flags . and saying index buffer states that its a index buffer
+	bd.BindFlags = D3D10_BIND_INDEX_BUFFER;
+	// This specifies wither the CPU can access the buffer. 0 means no
+	bd.CPUAccessFlags = 0;
+	// This is to ask for any additional options, 0 means there are no additional options
+	bd.MiscFlags = 0;
+
+	//creating the indices for the index buffer
+	int indices []={0,1,2};
+
+	// setting the pSysMem of the SUBRESOURCE_DATA to the indices
+	D3D10_SUBRESOURCE_DATA IndexBufferInitialData;
+	IndexBufferInitialData.pSysMem = indices;
+
+	//Creating the buffer how ever it takes in the following paramaters 
+	/* D3D10_BUFFER_DESC* - A pointer to a buffer description
+	   D3D10_SUBRESOURCE_DATA* - A pointer to the resource data
+	   ID3D10Buffer** - Memory address of a pointer to a buffer
+	*/
+	if (FAILED(m_pD3D10Device->CreateBuffer( &indexBufferDesc, &IndexBufferInitialData, &m_pIndexBuffer)))
+	{
+		return false;
+	}
+
+	//Creating the buffer how ever it takes in the following paramaters 
+	/* ID3D10Buffer** - Memory address of a pointer to a buffer
+	*/
+	m_pD3D10Device->IASetIndexBuffer(m_pIndexBuffer,DXGI_FORMAT_R32_UINT,0);
 
 	// Defining 3 simple vertices 
 	Vertex vertices[] =
@@ -177,7 +215,9 @@ bool CGameApplication::initGame()
 	   ID3D10Buffer** - Memory address of a pointer to a buffer
 	*/
 	if (FAILED(m_pD3D10Device->CreateBuffer( &bd, &InitData, &m_pVertexBuffer)))
+	{
 		return false;
+	}
 
 	/* Array of these input parameters as we can have many different elements of a vertex
 	   1st parameter LPCSTR - a string which specifies the semantic that this element is bount to. this allows it to link up vertices from the buffer to the vertices passed into the vertex shader
