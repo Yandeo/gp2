@@ -119,7 +119,7 @@ void CGameApplication::update()
 	//This function is used to update the game state, AI, input devices and physics
 
 	D3DXMatrixScaling(&m_matScale,m_vecScale.x,m_vecScale.y,m_vecScale.z);
-	D3DXMatrixRotationYawPitchRoll(&m_matRotation, m_vecRotation.y,m_vecRotation.x,m_vecRotation.z);
+	D3DXMatrixRotationYawPitchRoll(&m_matRotation, m_vecRotation.y+2,m_vecRotation.x+2,m_vecRotation.z);
 	D3DXMatrixTranslation(&m_matTranslation,m_vecPosition.x,m_vecPosition.y,m_vecPosition.z);
 
 	D3DXMatrixMultiply(&m_matWorld, &m_matScale, &m_matRotation);
@@ -141,7 +141,7 @@ bool CGameApplication::initGame()
 	bd.MiscFlags = 0;
 
 	//creating the indices for the index buffer
-	int indices []={0,1,2,0,3,1,3,6,1,1,8,6,6,8,7,7,6,5,5,0,3,3,6,0,0,5,6,6,5,7,7,8,1,1,6,7};
+	int indices []={0,1,2,0,1,3,4,6,7,6,7,5,2,5,1,2,5,6,3,4,0,3,4,7,3,5,7,3,5,1,4,2,0,4,2,6};
 
 	D3D10_BUFFER_DESC indexBufferDesc;
 	// Describes how the buffer is written and read to and from. Default states that the resource will be written to and read by the GPU
@@ -179,13 +179,13 @@ bool CGameApplication::initGame()
 	{
 		D3DXVECTOR3(0.0f, 0.5f, 0.0f),
 		D3DXVECTOR3(0.5f, 0.0f, 0.0f),
-		//D3DXVECTOR3(0.0f, 0.0f, 0.0f),
+		D3DXVECTOR3(0.0f, 0.0f, 0.0f),
 		D3DXVECTOR3(0.5f, 0.5f, 0.0f),
 
-		D3DXVECTOR3(0.5f, 1.0f, 0.5f),
-		D3DXVECTOR3(0.5f, 0.5f, 0.5f),
-		D3DXVECTOR3(1.0f, 1.0f, 0.5f),
-		D3DXVECTOR3(1.0f, 0.5f, 0.5f)
+		D3DXVECTOR3(0.0f, 0.5f, 0.5f),
+		D3DXVECTOR3(0.5f, 0.0f, 0.5f),
+		D3DXVECTOR3(0.0f, 0.0f, 0.5f),
+		D3DXVECTOR3(0.5f, 0.5f, 0.5f)
 	};
 
 	// setting the pSysMem of the SUBRESOURCE_DATA to the vertices
