@@ -141,13 +141,13 @@ bool CGameApplication::initGame()
 	bd.MiscFlags = 0;
 
 	//creating the indices for the index buffer
-	int indices []={0,1,2,0,1,3,4,6,7,6,7,5,2,5,1,2,5,6,3,4,0,3,4,7,3,5,7,3,5,1,4,2,0,4,2,6};
+	int indices []={0,1,2,0,1,3,4,6,7,6,7,5,2,5,1,2,5,6,3,4,0,3,4,7,3,5,7,3,5,1,4,2,6,4,2,0};
 
 	D3D10_BUFFER_DESC indexBufferDesc;
 	// Describes how the buffer is written and read to and from. Default states that the resource will be written to and read by the GPU
 	indexBufferDesc.Usage = D3D10_USAGE_DEFAULT;
 	// The size of the buffer (3 Vertices)
-	indexBufferDesc.ByteWidth = sizeof( indices ) * 36;
+	indexBufferDesc.ByteWidth = sizeof( indices );
 	//The type of buffer we are creating, this case - a combination of bind flags . and saying index buffer states that its a index buffer
 	indexBufferDesc.BindFlags = D3D10_BIND_INDEX_BUFFER;
 	// This specifies wither the CPU can access the buffer. 0 means no
