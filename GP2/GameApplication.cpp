@@ -175,18 +175,18 @@ bool CGameApplication::initGame()
 	*/
 	m_pD3D10Device->IASetIndexBuffer(m_pIndexBuffer,DXGI_FORMAT_R32_UINT,0);
 
-	// Defining 3 simple vertices 
+	// Defining 3 simple vertices (Poistion is the first 3 numbers and the next four are the colour (1 is fully on) (0 if fully off))
 	Vertex vertices[] =
 	{
 		{D3DXVECTOR3(0.0f, 0.5f, 0.0f), D3DXCOLOR(1.0f,0.0f,1.0f,1.0f)},
 		{D3DXVECTOR3(0.5f, 0.0f, 0.0f), D3DXCOLOR(1.0f,1.0f,0.0f,1.0f)},
 		{D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.0f,1.0f,1.0f,1.0f)},
 		{D3DXVECTOR3(0.5f, 0.5f, 0.0f), D3DXCOLOR(0.0f,0.0f,1.0f,1.0f)},
-
+		
 		{D3DXVECTOR3(0.0f, 0.5f, 0.5f), D3DXCOLOR(1.0f,0.0f,0.0f,1.0f)},
 		{D3DXVECTOR3(0.5f, 0.0f, 0.5f), D3DXCOLOR(0.0f,1.0f,0.0f,1.0f)},
 		{D3DXVECTOR3(0.0f, 0.0f, 0.5f), D3DXCOLOR(1.0f,1.0f,1.0f,1.0f)},
-		{D3DXVECTOR3(0.5f, 0.5f, 0.5f), D3DXCOLOR(0.0f,0.0f,0.0f,1.0f)}
+		{D3DXVECTOR3(0.5f, 0.5f, 0.5f), D3DXCOLOR(0.0f,0.0f,0.0f,1.0f)},
 	};
 
 	// setting the pSysMem of the SUBRESOURCE_DATA to the vertices
