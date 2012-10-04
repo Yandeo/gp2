@@ -206,7 +206,7 @@ bool CGameApplication::initGame()
 	   the 10th paramater ID3D10Effect** - a pointer to a memory address of an effect object
 	*/
 	ID3D10Blob *pErrors = NULL;
-	if(FAILED(D3DX10CreateEffectFromFile(TEXT("effect.fx"),NULL,NULL,"fx_4_0",dwShaderFlags,0,m_pD3D10Device,NULL,NULL, &m_pEffect,&pErrors,NULL)))
+	if(FAILED(D3DX10CreateEffectFromFile(TEXT("Transform.fx"),NULL,NULL,"fx_4_0",dwShaderFlags,0,m_pD3D10Device,NULL,NULL, &m_pEffect,&pErrors,NULL)))
 	{
 		MessageBoxA (NULL,(char*)pErrors->GetBufferPointer(),"Error", MB_OK);
 		return false;
