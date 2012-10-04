@@ -3,6 +3,7 @@
 struct Vertex
 {
 	D3DXVECTOR3 Pos;
+	D3DXCOLOR colour;
 };
 CGameApplication::CGameApplication(void)
 {
@@ -177,15 +178,15 @@ bool CGameApplication::initGame()
 	// Defining 3 simple vertices 
 	Vertex vertices[] =
 	{
-		D3DXVECTOR3(0.0f, 0.5f, 0.0f),
-		D3DXVECTOR3(0.5f, 0.0f, 0.0f),
-		D3DXVECTOR3(0.0f, 0.0f, 0.0f),
-		D3DXVECTOR3(0.5f, 0.5f, 0.0f),
+		{D3DXVECTOR3(0.0f, 0.5f, 0.0f), D3DXCOLOR(1.0f,0.0f,1.0f,1.0f)},
+		{D3DXVECTOR3(0.5f, 0.0f, 0.0f), D3DXCOLOR(1.0f,1.0f,0.0f,1.0f)},
+		{D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.0f,1.0f,1.0f,1.0f)},
+		{D3DXVECTOR3(0.5f, 0.5f, 0.0f), D3DXCOLOR(0.0f,0.0f,1.0f,1.0f)},
 
-		D3DXVECTOR3(0.0f, 0.5f, 0.5f),
-		D3DXVECTOR3(0.5f, 0.0f, 0.5f),
-		D3DXVECTOR3(0.0f, 0.0f, 0.5f),
-		D3DXVECTOR3(0.5f, 0.5f, 0.5f)
+		{D3DXVECTOR3(0.0f, 0.5f, 0.5f), D3DXCOLOR(1.0f,0.0f,0.0f,1.0f)},
+		{D3DXVECTOR3(0.5f, 0.0f, 0.5f), D3DXCOLOR(0.0f,1.0f,0.0f,1.0f)},
+		{D3DXVECTOR3(0.0f, 0.0f, 0.5f), D3DXCOLOR(1.0f,1.0f,1.0f,1.0f)},
+		{D3DXVECTOR3(0.5f, 0.5f, 0.5f), D3DXCOLOR(0.0f,0.0f,0.0f,1.0f)}
 	};
 
 	// setting the pSysMem of the SUBRESOURCE_DATA to the vertices
@@ -234,6 +235,7 @@ bool CGameApplication::initGame()
 	D3D10_INPUT_ELEMENT_DESC layout[]=
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D10_INPUT_PER_VERTEX_DATA,0},
+		{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D10_INPUT_PER_VERTEX_DATA, 0}
 	};
 
 	// calculating the size of the input array

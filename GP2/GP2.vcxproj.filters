@@ -49,5 +49,8 @@
     <None Include="effect.fx">
       <Filter>Effects</Filter>
     </None>
+    <None Include="Transform.fx">
+      <Filter>Effects</Filter>
+    </None>
   </ItemGroup>
 </Project>
